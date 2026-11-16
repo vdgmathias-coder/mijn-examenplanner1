@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Jouw persoonlijke examen- en studieplanner.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <title>Mijn Examenplanner</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="appmark">M</div><div><strong>Mijn Examenplanner</strong><small>Jouw focus. Jouw planning.</small></div></div>
+    <div style="display:flex;gap:7px"><button class="icon-btn" id="backupBtn" aria-label="Reservekopie downloaden">⇩</button><button class="icon-btn" id="restoreBtn" aria-label="Reservekopie terugzetten">⇧</button></div>
+  </header>
+  <main>
+    <section class="hero">
+      <div><span class="eyebrow" id="todayLabel">VANDAAG</span><h1 id="greeting">Klaar om te starten?</h1><p id="heroSub">Maak van studeren een duidelijk plan.</p></div>
+      <div class="hero-stat"><b id="upcomingCount">0</b><span>examens</span></div>
+    </section>
+    <nav class="tabs" aria-label="Hoofdnavigatie">
+      <button class="tab active" data-page="dashboard">Overzicht</button>
+      <button class="tab" data-page="exams">Examens</button>
+      <button class="tab" data-page="schedule">Rooster</button>
+      <button class="tab" data-page="subjects">Leerstof</button>
+      <button class="tab" data-page="study">Studeren</button>
+    </nav>
+
+    <section class="page active" id="page-dashboard">
+      <div class="section-head"><div><span class="eyebrow">JOUW OVERZICHT</span><h2>In één oogopslag</h2></div></div>
+      <div class="stats-grid">
+        <article class="stat-card"><span>Leerstof klaar</span><b id="statProgress">0%</b><div class="progress"><i id="statProgressBar"></i></div></article>
+        <article class="stat-card"><span>Gestudeerd</span><b id="statMinutes">0 min</b><small id="statHours">Nog geen sessies</small></article>
+        <article class="stat-card"><span>Hoofdstukken geleerd</span><b id="statChapters">0</b><small id="statChapterTotal">van 0</small></article>
+        <article class="stat-card"><span>Sessies voltooid</span><b id="statSessions">0</b><small>Focusmomenten</small></article>
+      </div>
+      <div class="section-head"><div><span class="eyebrow">EERSTVOLGENDE</span><h2>Komende examens</h2></div><button class="text-btn" data-goto="exams">Alles bekijken →</button></div>
+      <div id="dashboardExams" class="stack"></div>
+      <div class="section-head"><div><span class="eyebrow">SLIM GEPLAND</span><h2>Studieplanning</h2></div><button class="text-btn" data-goto="study">Bekijk →</button></div>
+      <div id="dashboardPlan" class="stack"></div>
+      <div class="empty-note" id="dashboardHint">Voeg je examens en leerstof toe. Daarna kan Mijn Examenplanner een studieplanning voorstellen.</div>
+    </section>
+
+    <section class="page" id="page-exams">
+      <div class="section-head"><div><span class="eyebrow">DE BELANGRIJKE DATA</span><h2>Mijn examens</h2></div><button class="primary-btn" id="addExam">＋ Examen</button></div>
+      <div id="examList" class="stack"></div>
+    </section>
+
+    <section class="page" id="page-schedule">
+      <div class="section-head"><div><span class="eyebrow">VASTE LESSEN</span><h2>Schoolrooster</h2></div><button class="primary-btn" id="addLesson">＋ Les</button></div>
+      <p class="muted">Voeg je gewone lessen toe. De automatische planner houdt deze uren vrij.</p>
+      <div id="lessonList" class="stack"></div>
+    </section>
+
+    <section class="page" id="page-subjects">
+      <div class="section-head"><div><span class="eyebrow">WAT MOET JE KENNEN?</span><h2>Mijn leerstof</h2></div><button class="primary-btn" id="addSubject">＋ Vak</button></div>
+      <div id="subjectList" class="stack"></div>
+    </section>
+
+    <section class="page" id="page-study">
+      <div class="section-head"><div><span class="eyebrow">FOCUS EN HERHALING</span><h2>Studeren</h2></div></div>
+      <article class="timer-card">
+        <span class="eyebrow">STUDIETIMER</span>
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        <div class="timer-settings">
+          <label>Studeren (min)<input type="number" id="studyDuration" min="1" max="180" value="25"></label>
+          <label>Pauze (min)<input type="number" id="breakDuration" min="1" max="60" value="5"></label>
+        </div>
+        <div class="timer-mode" id="timerMode">Focus</div>
+        <div class="timer-actions"><button class="primary-btn" id="timerStart">Start</button><button class="secondary-btn" id="timerReset">Reset</button><button class="secondary-btn" id="timerSwitch">Wissel</button></div>
+        <p class="muted" id="timerStatus">Kies je duur en start wanneer je klaar bent.</p>
+      </article>
+      <div class="section-head"><div><span class="eyebrow">OP MAAT GEMAAKT</span><h2>Automatische planning</h2></div></div>
+      <p class="muted">De planner verdeelt open leerstof over vrije momenten, geeft nabije examens voorrang en laat ruimte voor herhaling en pauzes.</p>
+      <div class="planner-controls"><label>Startuur<input type="time" id="dayStart" value="16:00"></label><label>Uiterlijk stoppen<input type="time" id="dayEnd" value="20:30"></label><label>Studieblok (min)<select id="blockLength"><option value="25">25 min</option><option value="40" selected>40 min</option><option value="50">50 min</option><option value="60">60 min</option></select></label></div>
+      <button class="primary-btn wide" id="generatePlan">✦ Maak mijn studieplanning</button>
+      <div id="planList" class="stack top-gap"></div>
+      <div class="section-head"><div><span class="eyebrow">JOUW RESULTATEN</span><h2>Studiesessies</h2></div></div>
+      <div id="sessionList" class="stack"></div>
+    </section>
+  </main>
+
+  <dialog id="editDialog">
+    <form id="editForm" method="dialog">
+      <div class="dialog-head"><h2 id="dialogTitle">Toevoegen</h2><button type="button" class="icon-btn" id="closeDialog">✕</button></div>
+      <div id="dialogFields" class="form-fields"></div>
+      <div class="dialog-actions"><button type="button" class="secondary-btn" id="cancelDialog">Annuleren</button><button type="submit" class="primary-btn">Bewaren</button></div>
+    </form>
+  </dialog>
+  <input type="file" id="importFile" accept="application/json,.json" hidden>
+  <footer><span>Mijn Examenplanner</span><span>Je gegevens blijven op dit toestel.</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

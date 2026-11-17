@@ -6,3 +6,25 @@
 .smartschool-card button:disabled{opacity:.45;cursor:not-allowed}
 
 .smartschool-preview{margin-top:14px}.smartschool-preview-title{font-size:15px;margin:18px 0 10px}.smartschool-task-preview{background:#0d0d0d;border:1px solid #343434;border-radius:13px;padding:12px;margin:10px 0}.smartschool-input{display:block;width:100%;background:#090909;border:1px solid #383838;border-radius:10px;color:#fff;padding:11px;min-width:0}.smartschool-preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.topic-deadline{display:block;color:#aaa;font-size:10px;margin-top:4px}
+
+.agenda-card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:14px}
+.agenda-monthbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+.agenda-monthbar h3{font-size:16px;text-transform:capitalize;margin:0}
+.agenda-monthbar button{min-width:42px;padding:8px}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.calendar-weekdays{margin-bottom:7px}
+.calendar-weekdays span{text-align:center;color:var(--muted);font-size:10px;font-weight:700;padding:5px 0}
+.calendar-cell{min-width:0;min-height:47px;border:1px solid transparent;border-radius:10px;background:#0d0d0d;color:#eee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:5px 2px}
+.calendar-cell span{font-size:12px}
+.calendar-cell.blank{background:transparent}
+.calendar-cell.today{border-color:#777}
+.calendar-cell.selected{background:#f2f2f2;color:#090909;font-weight:800}
+.calendar-dots{display:flex;gap:3px;height:5px}
+.calendar-dots b,.legend-dot{width:5px;height:5px;border-radius:50%;display:inline-block;background:#bbb}
+.exam-dot{background:#f0f0f0}.task-dot{background:#999}.plan-dot{background:#666}
+.agenda-legend{display:flex;gap:15px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:10px}
+.agenda-legend span{display:flex;align-items:center;gap:6px}
+.agenda-event{justify-content:flex-start}
+.agenda-event-mark{width:4px;align-self:stretch;border-radius:4px;background:#888;flex-shrink:0}
+.agenda-event-mark.exam{background:#f2f2f2}.agenda-event-mark.task{background:#aaa}.agenda-event-mark.plan{background:#777}.agenda-event-mark.lesson{background:#555}
+@media(max-width:390px){.calendar-weekdays,.calendar-grid{gap:3px}.calendar-cell{min-height:42px;border-radius:8px}}

@@ -136,3 +136,69 @@ body[data-layout="compact"] .page.active{animation:compactFade .18s ease}
 
 /* Slimme herinneringen en focusmodus */
 .reminder-item{align-items:center}.reminder-mark{width:5px;align-self:stretch;border-radius:8px;background:#a78bfa;flex-shrink:0}.reminder-mark.exam{background:#60a5fa}.focus-card{background:linear-gradient(145deg,#172b50,#171332);border:1px solid #344a78;border-radius:18px;padding:18px;margin-bottom:14px}.focus-card h3{font-size:17px;margin:8px 0}.focus-select-label{display:flex;flex-direction:column;gap:7px;color:#b9c8e8;font-size:11px;margin-top:13px}.focus-select-label select{width:100%;background:#091226;border:1px solid #30466e;border-radius:10px;color:#f2f5ff;padding:12px}.focus-card .muted{margin:10px 0 0}.focus-card .wide{margin-top:12px}
+
+
+/* V12: de gekozen accentkleur wordt door de volledige app gebruikt. */
+body[data-theme="modern"]{
+ --accent:var(--user-accent);
+ accent-color:var(--user-accent);
+}
+body[data-theme="modern"] .tab:not(.active){
+ border-color:color-mix(in srgb,var(--user-accent),#293958 72%);
+}
+body[data-theme="modern"] .primary-btn{
+ background:linear-gradient(110deg,var(--user-accent),color-mix(in srgb,var(--user-accent),#8b5cf6 48%));
+ border-color:color-mix(in srgb,var(--user-accent),white 22%);
+}
+body[data-theme="modern"] .secondary-btn,
+body[data-theme="modern"] .mini-btn,
+body[data-theme="modern"] .icon-btn{
+ border-color:color-mix(in srgb,var(--user-accent),#34476c 72%);
+}
+body[data-theme="modern"] .timer-card,
+body[data-theme="modern"] .focus-card{
+ background:linear-gradient(145deg,color-mix(in srgb,var(--user-accent),#172b50 72%),color-mix(in srgb,var(--user-accent),#171332 88%));
+ border-color:color-mix(in srgb,var(--user-accent),#344a78 55%);
+}
+body[data-theme="modern"] .timer-display{
+ background:linear-gradient(100deg,var(--user-accent),color-mix(in srgb,var(--user-accent),#c4b5fd 35%));
+ background-clip:text;-webkit-background-clip:text;color:transparent;
+}
+body[data-theme="modern"] .progress i,
+body[data-theme="modern"] .subject-progress i{
+ background:linear-gradient(90deg,var(--user-accent),color-mix(in srgb,var(--user-accent),#8b5cf6 48%));
+}
+body[data-theme="modern"] .calendar-cell.today,
+body[data-theme="modern"] input:focus,
+body[data-theme="modern"] select:focus,
+body[data-theme="modern"] textarea:focus{
+ border-color:var(--user-accent);
+}
+body[data-theme="modern"] .calendar-dots b,
+body[data-theme="modern"] .legend-dot,
+body[data-theme="modern"] .reminder-mark,
+body[data-theme="modern"] .agenda-event-mark,
+body[data-theme="modern"] .week-event{
+ --marker-accent:var(--user-accent);
+}
+body[data-theme="modern"] .agenda-event-mark,
+body[data-theme="modern"] .week-event{
+ border-left-color:var(--user-accent);
+}
+body[data-theme="modern"] .reminder-mark,
+body[data-theme="modern"] .calendar-dots b,
+body[data-theme="modern"] .legend-dot{
+ background:var(--user-accent);
+}
+body[data-theme="modern"] .pill{
+ border:1px solid color-mix(in srgb,var(--user-accent),#202f50 65%);
+}
+body[data-theme="modern"] .text-btn,
+body[data-theme="modern"] a{
+ color:var(--user-accent);
+}
+body[data-theme="modern"] button:focus-visible,
+body[data-theme="modern"] .color-control:focus-within{
+ outline:2px solid var(--user-accent);
+ outline-offset:2px;
+}

@@ -64,13 +64,13 @@
     <section class="page" id="page-smartschool">
       <div class="section-head"><div><span class="eyebrow">TAKEN OVERZETTEN</span><h2>Smartschool</h2></div></div>
       <article class="smartschool-card">
-        <p class="muted">Plak hieronder taken uit Smartschool. Zet elke taak op een aparte regel en kies het juiste vak. De taken worden als open taken aan je leerstof toegevoegd.</p>
-        <label class="smartschool-label" for="smartschoolSubject">Vak</label>
-        <select id="smartschoolSubject" class="smartschool-select"></select>
-        <label class="smartschool-label" for="smartschoolTasks">Taken (één per regel)</label>
-        <textarea id="smartschoolTasks" class="smartschool-textarea" rows="8" placeholder="Oefeningen pagina 24&#10;Hoofdstuk 3 herhalen&#10;Taak uploaden"></textarea>
-        <button class="primary-btn wide" id="importSmartschool">＋ Taken toevoegen</button>
-        <p class="muted" id="smartschoolStatus" aria-live="polite">Voeg eerst je vakken toe bij Leerstof als de keuzelijst leeg is.</p>
+        <p class="muted">Kopieer je volledige takenlijst uit Smartschool en plak die hieronder. De planner probeert taken, vakken en deadlines te herkennen. Controleer alles vóór je importeert.</p>
+        <label class="smartschool-label" for="smartschoolTasks">Volledige Smartschool-takenlijst</label>
+        <textarea id="smartschoolTasks" class="smartschool-textarea" rows="10" placeholder="Plak hier de gekopieerde takenlijst uit Smartschool..."></textarea>
+        <button class="primary-btn wide" id="analyzeSmartschool">✦ Taken herkennen</button>
+        <p class="muted" id="smartschoolStatus" aria-live="polite">Voeg eerst je vakken toe bij Leerstof. Je kunt daarna de herkende taken controleren.</p>
+        <div id="smartschoolPreview" class="smartschool-preview"></div>
+        <button class="primary-btn wide" id="confirmSmartschool" hidden>＋ Goedgekeurde taken toevoegen</button>
       </article>
     </section>
 

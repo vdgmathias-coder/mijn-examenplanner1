@@ -77,3 +77,38 @@ body[data-theme="modern"] .calendar-dots b{box-shadow:0 0 5px currentColor}
 body[data-theme="modern"] button{transition:filter .15s ease,transform .15s ease}
 body[data-theme="modern"] button:hover{filter:brightness(1.12)}
 @media(min-width:700px){body[data-theme="modern"] .stat-card:hover,body[data-theme="modern"] .item:hover{border-color:#49659b}}
+
+
+/* Extra compact layout en instelbare accentkleur */
+:root{--user-accent:#438bff}
+body[data-theme="modern"] .tab.active,body[data-theme="modern"] .primary-btn,
+body[data-theme="modern"] .calendar-cell.selected{
+ background:linear-gradient(110deg,var(--user-accent),color-mix(in srgb,var(--user-accent),#8b5cf6 48%));
+ border-color:color-mix(in srgb,var(--user-accent),white 22%);
+}
+body[data-theme="modern"] .progress i,body[data-theme="modern"] .subject-progress i{
+ background:linear-gradient(90deg,var(--user-accent),color-mix(in srgb,var(--user-accent),#8b5cf6 48%));
+}
+.top-actions{display:flex;align-items:center;gap:7px}
+.color-control{position:relative;width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);background:var(--panel);border-radius:12px;font-size:20px;cursor:pointer;overflow:hidden}
+.color-control input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+body[data-theme="modern"] .color-control{background:#17233d;border-color:#34476c;color:#b8caff}
+body[data-layout="compact"] .tabs{scrollbar-width:none}
+@media(max-width:699px){
+ body[data-layout="compact"] main{padding-bottom:calc(105px + env(safe-area-inset-bottom))}
+ body[data-layout="compact"] .tabs{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  padding:9px 10px calc(9px + env(safe-area-inset-bottom));
+  margin:0;gap:7px;overflow-x:auto;overflow-y:hidden;
+  background:#080e20f2;border-top:1px solid #2c4166;
+  backdrop-filter:blur(18px);box-shadow:0 -8px 24px #02061766;
+ }
+ body[data-layout="compact"] .tab{
+  flex:0 0 auto;min-width:67px;padding:9px 11px;
+  border-radius:12px;font-size:11px;text-align:center;
+ }
+ body[data-layout="compact"] footer{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+}
+@media(min-width:700px){
+ body[data-layout="compact"] .tabs{border-bottom:1px solid #263657;padding-bottom:17px}
+}

@@ -18,6 +18,29 @@ function time(m){return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60
 function daysUntil(d){return Math.ceil((dateLocal(d)-dateLocal(new Date().toISOString().slice(0,10)))/86400000)}
 function subjectName(id){return data.subjects.find(s=>s.id===id)?.name||"Onbekend vak"}
 function allTopics(){return data.subjects.flatMap(s=>s.topics.map(t=>({...t,subjectId:s.id,subject:s.name})))}
+function renderSmartReminders(){
+ const today=localISO(new Date()), tomorrow=localISO(new Date(Date.now()+86400000));
+ const items=[];
+ data.exams.filter(e=>e.date>=today&&e.date<=localISO(new Date(Date.now()+7*86400000))).forEach(e=>items.push({date:e.date,title:'Examen · '+e.subject,detail:e.date===today?'Vandaag':e.date===tomorrow?'Morgen':fmtDate(e.date),kind:'exam'}));
+ data.tasks.filter(t=>!t.done&&t.dueDate&&t.dueDate<=tomorrow).forEach(t=>items.push({date:t.dueDate,title:'Taak · '+t.title,detail:t.dueDate<today?'Deadline verstreken':t.dueDate===today?'Vandaag':'Morgen',kind:'task'}));
+ data.subjects.forEach(s=>s.topics.filter(t=>!t.done&&t.dueDate&&t.dueDate<=tomorrow).forEach(t=>items.push({date:t.dueDate,title:t.title,detail:s.name+' · '+(t.dueDate<today?'Deadline verstreken':t.dueDate===today?'Vandaag':'Morgen'),kind:'task'})));
+ items.sort((a,b)=>a.date.localeCompare(b.date));
+ $('#smartReminders').innerHTML=items.slice(0,6).map(x=>'<div class="item reminder-item"><span class="reminder-mark '+x.kind+'"></span><div class="item-main"><div class="item-title">'+esc(x.title)+'</div><div class="item-sub">'+esc(x.detail)+'</div></div><span class="pill">'+(x.kind==='exam'?'Examen':'Deadline')+'</span></div>').join('')||'<div class="empty">Geen dringende deadlines. Je bent helemaal mee!</div>';
+}
+function renderFocusOptions(){
+ const select=$('#focusItem'),current=select.value;
+ const options=[...data.tasks.filter(t=>!t.done).map(t=>({value:'task:'+t.id,label:'Taak · '+t.title})),...allTopics().filter(t=>!t.done).map(t=>({value:'topic:'+t.id,label:t.subject+' · '+t.title}))];
+ select.innerHTML='<option value="">Vrij focusmoment</option>'+options.map(o=>'<option value="'+esc(o.value)+'">'+esc(o.label)+'</option>').join('');
+ if(options.some(o=>o.value===current))select.value=current;
+}
+let focusSessionSubject='Focusmoment';
+function startFocusMode(){
+ const value=$('#focusItem').value;focusSessionSubject='Focusmoment';
+ if(value.startsWith('task:')){const t=data.tasks.find(x=>x.id===value.slice(5));if(t)focusSessionSubject=t.subject||t.title}
+ if(value.startsWith('topic:')){const t=allTopics().find(x=>x.id===value.slice(6));if(t)focusSessionSubject=t.subject}
+ if(!timer.running){timer.mode='focus';timer.remaining=(+$('#studyDuration').value||25)*60;updateTimer();$('#timerStatus').textContent='Focus op: '+focusSessionSubject;startTimer();$('#timerDisplay').scrollIntoView({behavior:'smooth',block:'center'})}
+}
+$('#focusStart').onclick=startFocusMode;
 function render(){
  const now=new Date();$("#todayLabel").textContent=now.toLocaleDateString("nl-BE",{weekday:"long",day:"numeric",month:"long"}).toUpperCase();
  $("#greeting").textContent=now.getHours()<12?"Goedemorgen!":now.getHours()<18?"Goedemiddag!":"Goedenavond!";
@@ -32,6 +55,8 @@ function render(){
  $("#lessonList").innerHTML=[...data.lessons].sort((a,b)=>a.day-b.day||a.start.localeCompare(b.start)).map(l=>`<div class="item"><div class="item-main"><div class="item-title">${DAYS[l.day]} · ${esc(l.subject)}</div><div class="item-sub">${l.start} – ${l.end}</div></div><div class="item-actions"><button class="mini-btn" onclick="editLesson('${l.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('lessons','${l.id}')">✕</button></div></div>`).join("")||'<div class="empty">Je rooster is nog leeg.</div>';
  $("#subjectList").innerHTML=data.subjects.map(subjectHTML).join("")||'<div class="empty">Voeg je vakken toe en zet er hoofdstukken, taken of notities bij.</div>';
  renderSmartschoolPreview();
+ renderSmartReminders();
+ renderFocusOptions();
  renderAgenda();
  renderTasks();
  renderWeek();
@@ -102,9 +127,9 @@ $("#addLesson").onclick=()=>openDialog("Les toevoegen",selectField("day","Weekda
 window.editLesson=id=>{let l=data.lessons.find(x=>x.id===id);openDialog("Les aanpassen",selectField("day","Weekdag",DAYS.map((d,i)=>({value:i,label:d})),l.day)+field("subject","Vak","text",l.subject)+field("start","Beginuur","time",l.start)+field("end","Einduur","time",l.end),v=>Object.assign(l,{...v,day:+v.day}))};
 $("#addSubject").onclick=()=>openDialog("Vak toevoegen",field("name","Naam van het vak"),v=>data.subjects.push({id:uid(),name:v.name,topics:[]}));
 window.editSubject=id=>{let s=data.subjects.find(x=>x.id===id);openDialog("Vak aanpassen",field("name","Naam van het vak","text",s.name),v=>s.name=v.name)};
-window.addTopic=id=>openDialog("Leerstof toevoegen",field("title","Hoofdstuk, taak of notitie")+selectField("type","Soort",["Hoofdstuk","Taak","Notitie"].map(x=>({value:x,label:x})), "Hoofdstuk"),v=>data.subjects.find(s=>s.id===id).topics.push({id:uid(),title:v.title,type:v.type,done:false}));
+window.addTopic=id=>openDialog("Leerstof toevoegen",field("title","Hoofdstuk, taak of notitie")+selectField("type","Soort",["Hoofdstuk","Taak","Notitie"].map(x=>({value:x,label:x})), "Hoofdstuk")+selectField("difficulty","Moeilijkheid",[{value:"1",label:"Makkelijk"},{value:"2",label:"Gemiddeld"},{value:"3",label:"Moeilijk"}],"2")+selectField("estimate","Geschatte studietijd",[{value:"25",label:"25 minuten"},{value:"40",label:"40 minuten"},{value:"60",label:"1 uur"},{value:"90",label:"1,5 uur"},{value:"120",label:"2 uur"}],"40"),v=>data.subjects.find(s=>s.id===id).topics.push({id:uid(),title:v.title,type:v.type,difficulty:+v.difficulty,estimate:+v.estimate,done:false}));
 window.toggleTopic=(sid,tid,val)=>{let t=data.subjects.find(s=>s.id===sid).topics.find(t=>t.id===tid);t.done=val;save()};
-window.editTopic=(sid,tid)=>{let t=data.subjects.find(s=>s.id===sid).topics.find(t=>t.id===tid);openDialog("Onderdeel aanpassen",field("title","Titel","text",t.title)+selectField("type","Soort",["Hoofdstuk","Taak","Notitie"].map(x=>({value:x,label:x})),t.type),v=>Object.assign(t,v))};
+window.editTopic=(sid,tid)=>{let t=data.subjects.find(s=>s.id===sid).topics.find(t=>t.id===tid);openDialog("Onderdeel aanpassen",field("title","Titel","text",t.title)+selectField("type","Soort",["Hoofdstuk","Taak","Notitie"].map(x=>({value:x,label:x})),t.type)+selectField("difficulty","Moeilijkheid",[{value:"1",label:"Makkelijk"},{value:"2",label:"Gemiddeld"},{value:"3",label:"Moeilijk"}],String(t.difficulty||2))+selectField("estimate","Geschatte studietijd",[{value:"25",label:"25 minuten"},{value:"40",label:"40 minuten"},{value:"60",label:"1 uur"},{value:"90",label:"1,5 uur"},{value:"120",label:"2 uur"}],String(t.estimate||40)),v=>Object.assign(t,{...v,difficulty:+v.difficulty,estimate:+v.estimate}))};
 window.deleteTopic=(sid,tid)=>{if(confirm("Dit onderdeel verwijderen?")){let s=data.subjects.find(x=>x.id===sid);s.topics=s.topics.filter(t=>t.id!==tid);save()}};
 window.removeItem=(key,id)=>{if(confirm("Dit item verwijderen?")){data[key]=data[key].filter(x=>x.id!==id);save()}};
 window.editPlan=id=>{let p=data.plans.find(x=>x.id===id);openDialog("Studieblok aanpassen",field("date","Datum","date",p.date)+field("subject","Vak","text",p.subject)+field("topic","Onderdeel","text",p.topic)+field("start","Beginuur","time",p.start)+field("end","Einduur","time",p.end)+`<div class="field"><label>Notitie<textarea name="note">${esc(p.note||"")}</textarea></label></div>`,v=>Object.assign(p,{...v,minutes:Math.max(0,mins(v.end)-mins(v.start))}))};
@@ -121,7 +146,7 @@ function generate(){
  let lessons=data.lessons,created=[],cursor=new Date();cursor.setDate(cursor.getDate()+1);
  // Clear only future generated plan; user can edit the resulting blocks afterward.
  data.plans=data.plans.filter(p=>p.date<new Date().toISOString().slice(0,10));
- let topicQueue=pending.map(t=>({...t,exam:exams.find(e=>e.subject.toLowerCase()===t.subject.toLowerCase())||exams[0]})).sort((a,b)=>daysUntil(a.exam.date)-daysUntil(b.exam.date));
+ let topicQueue=pending.map(t=>({...t,exam:exams.find(e=>e.subject.toLowerCase()===t.subject.toLowerCase())||exams[0],remaining:Math.max(1,Math.ceil((t.estimate||block)/block))})).sort((a,b)=>daysUntil(a.exam.date)-daysUntil(b.exam.date)||(b.difficulty||2)-(a.difficulty||2));
  let maxDays=Math.min(45,Math.max(7,...exams.map(e=>daysUntil(e.date))));
  for(let offset=1;offset<=maxDays&&topicQueue.length;offset++){
    let d=new Date();d.setDate(d.getDate()+offset);let iso=d.toISOString().slice(0,10),day=d.getDay();
@@ -132,9 +157,9 @@ function generate(){
    let slots=[];for(let t=start;t+block<=end;t+=block+10){let finish=t+block;if(blocked.some(([a,b])=>t<b&&finish>a))continue;if(t<12*60+30&&finish>12*60)continue;slots.push(t)}
    for(let slot of slots){
      if(!topicQueue.length)break;
-     let item=topicQueue.shift(),finish=slot+block;
-     let p={id:uid(),date:iso,subject:item.subject,topic:item.title,start:time(slot),end:time(finish),minutes:block,note:"Automatisch ingepland · neem na dit blok een korte pauze"};
-     data.plans.push(p);created.push(p);
+     let item=topicQueue[0],finish=slot+block;
+     let p={id:uid(),date:iso,subject:item.subject,topic:item.title,start:time(slot),end:time(finish),minutes:block,note:"Slim gepland · "+(item.difficulty===3?"extra aandacht voor moeilijk onderdeel":"neem na dit blok een korte pauze")};
+     data.plans.push(p);created.push(p);item.remaining--;if(item.remaining<=0)topicQueue.shift();
      // Add a repeat block for learned content shortly before its exam, when time permits.
      if(item.exam&&daysUntil(item.exam.date)>2&&offset===Math.max(0,daysUntil(item.exam.date)-2)){
        data.plans.push({...p,id:uid(),date:iso,topic:"Herhaling: "+item.title,start:time(Math.min(end-block,finish+10)),end:time(Math.min(end-block,finish+10)+block),note:"Herhaling"}); 
@@ -150,7 +175,7 @@ $("#generatePlan").onclick=generate;
 function updateTimer(){let m=Math.floor(timer.remaining/60),s=timer.remaining%60;$("#timerDisplay").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");$("#timerMode").textContent=timer.mode==="focus"?"Focus":"Pauze";$("#timerStart").textContent=timer.running?"Pauze":"Start"}
 function stopTimer(){clearInterval(timer.interval);timer.interval=null;timer.running=false}
 function switchTimer(){stopTimer();timer.mode=timer.mode==="focus"?"break":"focus";timer.remaining=(timer.mode==="focus"?+$("#studyDuration").value:+$("#breakDuration").value)*60;updateTimer()}
-function startTimer(){if(timer.running){stopTimer();$("#timerStatus").textContent="Timer gepauzeerd.";updateTimer();return}if(timer.remaining<=0)timer.remaining=(timer.mode==="focus"?+$("#studyDuration").value:+$("#breakDuration").value)*60;timer.running=true;timer.interval=setInterval(()=>{timer.remaining--;updateTimer();if(timer.remaining<=0){stopTimer();if(timer.mode==="focus"){let minsDone=+$("#studyDuration").value;data.sessions.push({id:uid(),date:new Date().toISOString().slice(0,10),minutes:minsDone,subject:"Focusblok"});save();$("#timerStatus").textContent="Mooi gewerkt! Je studiesessie is opgeslagen."}else $("#timerStatus").textContent="Pauze voorbij. Klaar voor een nieuw focusblok?";switchTimer()}},1000);updateTimer()}
+function startTimer(){if(timer.running){stopTimer();$("#timerStatus").textContent="Timer gepauzeerd.";updateTimer();return}if(timer.remaining<=0)timer.remaining=(timer.mode==="focus"?+$("#studyDuration").value:+$("#breakDuration").value)*60;timer.running=true;timer.interval=setInterval(()=>{timer.remaining--;updateTimer();if(timer.remaining<=0){stopTimer();if(timer.mode==="focus"){let minsDone=+$("#studyDuration").value;data.sessions.push({id:uid(),date:new Date().toISOString().slice(0,10),minutes:minsDone,subject:focusSessionSubject});save();$("#timerStatus").textContent="Mooi gewerkt! Je studiesessie is opgeslagen."}else $("#timerStatus").textContent="Pauze voorbij. Klaar voor een nieuw focusblok?";switchTimer()}},1000);updateTimer()}
 $("#timerStart").onclick=startTimer;$("#timerReset").onclick=()=>{stopTimer();timer.remaining=(timer.mode==="focus"?+$("#studyDuration").value:+$("#breakDuration").value)*60;$("#timerStatus").textContent="Timer gereset.";updateTimer()};$("#timerSwitch").onclick=switchTimer;
 $("#studyDuration").onchange=$("#breakDuration").onchange=()=>{if(!timer.running){timer.remaining=(timer.mode==="focus"?+$("#studyDuration").value:+$("#breakDuration").value)*60;updateTimer()}};
 

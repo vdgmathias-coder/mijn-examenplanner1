@@ -9,12 +9,12 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" href="icons/icon-192.png">
   <title>Mijn Examenplanner</title>
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
   <header class="topbar">
     <div class="brand"><div class="appmark">M</div><div><strong>Mijn Examenplanner</strong><small>Jouw focus. Jouw planning.</small></div></div>
-    <div style="display:flex;gap:7px"><button class="icon-btn" id="themeToggle" aria-label="Probeer nieuwe stijl" title="Probeer nieuwe stijl">◐</button><button class="icon-btn" id="backupBtn" aria-label="Reservekopie downloaden">⇩</button><button class="icon-btn" id="restoreBtn" aria-label="Reservekopie terugzetten">⇧</button></div>
+    <div class="top-actions"><label class="color-control" title="Kies je accentkleur" aria-label="Kies je accentkleur">◉<input type="color" id="accentPicker" value="#438bff"></label><button class="icon-btn" id="themeToggle" aria-label="Probeer nieuwe stijl" title="Probeer nieuwe stijl">◐</button><button class="icon-btn" id="backupBtn" aria-label="Reservekopie downloaden">⇩</button><button class="icon-btn" id="restoreBtn" aria-label="Reservekopie terugzetten">⇧</button></div>
   </header>
   <main>
     <section class="hero">
@@ -149,6 +149,6 @@
   </dialog>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
   <footer><span>Mijn Examenplanner</span><span>Je gegevens blijven op dit toestel.</span></footer>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

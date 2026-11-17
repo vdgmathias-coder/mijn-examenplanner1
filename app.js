@@ -3,12 +3,15 @@ const DAYS=["Zondag","Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zater
 const $=s=>document.querySelector(s);
 let data=load(), editing=null, timer={mode:"focus",remaining:1500,running:false,interval:null};
 let smartschoolPreview=[];
+let agendaMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+let agendaSelected=localISO(new Date());
 function blank(){return {exams:[],lessons:[],subjects:[],plans:[],sessions:[],settings:{}}}
 function load(){try{return {...blank(),...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch{return blank()}}
 function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
 function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function uid(){return Math.random().toString(36).slice(2,10)}
 function dateLocal(d){return new Date(d+"T00:00:00")}
+function localISO(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function fmtDate(d){return dateLocal(d).toLocaleDateString("nl-BE",{weekday:"short",day:"numeric",month:"short"})}
 function mins(t){if(!t)return 0;let [h,m]=t.split(":").map(Number);return h*60+m}
 function time(m){return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
@@ -29,6 +32,7 @@ function render(){
  $("#lessonList").innerHTML=[...data.lessons].sort((a,b)=>a.day-b.day||a.start.localeCompare(b.start)).map(l=>`<div class="item"><div class="item-main"><div class="item-title">${DAYS[l.day]} · ${esc(l.subject)}</div><div class="item-sub">${l.start} – ${l.end}</div></div><div class="item-actions"><button class="mini-btn" onclick="editLesson('${l.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('lessons','${l.id}')">✕</button></div></div>`).join("")||'<div class="empty">Je rooster is nog leeg.</div>';
  $("#subjectList").innerHTML=data.subjects.map(subjectHTML).join("")||'<div class="empty">Voeg je vakken toe en zet er hoofdstukken, taken of notities bij.</div>';
  renderSmartschoolPreview();
+ renderAgenda();
  $("#planList").innerHTML=data.plans.length?data.plans.slice().sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).map(planHTML).join(""):'<div class="empty">Nog geen planning. Voeg examens en leerstof toe en maak daarna je planning.</div>';
  $("#dashboardPlan").innerHTML=data.plans.slice().sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).slice(0,3).map(planHTML).join("")||'<div class="empty">Je studieplanning verschijnt hier.</div>';
  $("#dashboardHint").style.display=(!data.exams.length||!data.subjects.length)?"block":"none";
@@ -109,6 +113,38 @@ $("#importFile").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let
 if("serviceWorker" in navigator && location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn))}
 render();updateTimer();
 
+
+
+function agendaEventsFor(date){
+ const events=[];
+ data.exams.filter(e=>e.date===date).forEach(e=>events.push({kind:"exam",time:e.time||"Hele dag",title:"Examen · "+e.subject,detail:e.notes||""}));
+ data.subjects.forEach(s=>s.topics.filter(t=>t.dueDate===date).forEach(t=>events.push({kind:"task",time:"Deadline",title:t.title,detail:s.name})));
+ data.plans.filter(p=>p.date===date).forEach(p=>events.push({kind:"plan",time:(p.start||"")+"–"+(p.end||""),title:"Studeren · "+p.subject,detail:p.topic}));
+ const day=dateLocal(date).getDay();
+ data.lessons.filter(l=>+l.day===day).forEach(l=>events.push({kind:"lesson",time:l.start+"–"+l.end,title:"Les · "+l.subject,detail:"Vast schoolrooster"}));
+ return events.sort((a,b)=>a.time.localeCompare(b.time));
+}
+function renderAgenda(){
+ const monthHost=$("#agendaCalendar"),title=$("#agendaMonth"),dayHost=$("#agendaDayEvents");
+ if(!monthHost||!title||!dayHost)return;
+ title.textContent=agendaMonth.toLocaleDateString("nl-BE",{month:"long",year:"numeric"});
+ const year=agendaMonth.getFullYear(),month=agendaMonth.getMonth();
+ const first=new Date(year,month,1),offset=(first.getDay()+6)%7,days=new Date(year,month+1,0).getDate();
+ const cells=[];
+ for(let i=0;i<offset;i++)cells.push('<div class="calendar-cell blank"></div>');
+ for(let n=1;n<=days;n++){
+  const date=localISO(new Date(year,month,n)),events=agendaEventsFor(date);
+  const types=[...new Set(events.map(e=>e.kind))];
+  cells.push('<button class="calendar-cell '+(date===agendaSelected?'selected':'')+(date===localISO(new Date())?' today':'')+'" data-agenda-date="'+date+'"><span>'+n+'</span><i class="calendar-dots">'+types.filter(t=>["exam","task","plan"].includes(t)).map(t=>'<b class="'+t+'-dot"></b>').join("")+'</i></button>');
+ }
+ monthHost.innerHTML=cells.join("");
+ monthHost.querySelectorAll("[data-agenda-date]").forEach(b=>b.onclick=()=>{agendaSelected=b.dataset.agendaDate;renderAgenda()});
+ $("#agendaSelectedDate").textContent=dateLocal(agendaSelected).toLocaleDateString("nl-BE",{weekday:"long",day:"numeric",month:"long"});
+ const events=agendaEventsFor(agendaSelected);
+ dayHost.innerHTML=events.map(e=>'<div class="item agenda-event"><span class="agenda-event-mark '+e.kind+'"></span><div class="item-main"><div class="item-title">'+esc(e.title)+'</div><div class="item-sub">'+esc(e.time)+(e.detail?' · '+esc(e.detail):'')+'</div></div></div>').join("")||'<div class="empty">Geen geplande items op deze dag.</div>';
+}
+$("#agendaPrev").onclick=()=>{agendaMonth=new Date(agendaMonth.getFullYear(),agendaMonth.getMonth()-1,1);renderAgenda()};
+$("#agendaNext").onclick=()=>{agendaMonth=new Date(agendaMonth.getFullYear(),agendaMonth.getMonth()+1,1);renderAgenda()};
 
 // Smartschool: takenlijst analyseren, controleren en importeren.
 function parseSmartschoolDate(text){

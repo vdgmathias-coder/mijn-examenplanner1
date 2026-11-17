@@ -9,7 +9,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" href="icons/icon-192.png">
   <title>Mijn Examenplanner</title>
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <header class="topbar">
@@ -25,6 +25,8 @@
       <button class="tab active" data-page="dashboard">Overzicht</button>
       <button class="tab" data-page="exams">Examens</button>
       <button class="tab" data-page="agenda">Agenda</button>
+      <button class="tab" data-page="week">Week</button>
+      <button class="tab" data-page="tasks">Taken</button>
       <button class="tab" data-page="schedule">Rooster</button>
       <button class="tab" data-page="subjects">Leerstof</button>
       <button class="tab" data-page="study">Studeren</button>
@@ -62,6 +64,28 @@
       <div class="section-head"><div><span class="eyebrow">GESELECTEERDE DAG</span><h2 id="agendaSelectedDate">Vandaag</h2></div></div>
       <div id="agendaDayEvents" class="stack"></div>
       <p class="muted">De agenda verzamelt automatisch je examens, deadlines uit Smartschool, geplande studiemomenten en vaste lessen.</p>
+    </section>
+
+    <section class="page" id="page-week">
+      <div class="section-head"><div><span class="eyebrow">JE PLANNING</span><h2>Mijn week</h2></div></div>
+      <article class="agenda-card">
+        <div class="agenda-monthbar">
+          <button class="secondary-btn" id="weekPrev" aria-label="Vorige week">‹</button>
+          <h3 id="weekLabel">Deze week</h3>
+          <button class="secondary-btn" id="weekNext" aria-label="Volgende week">›</button>
+        </div>
+        <div id="weekOverview" class="week-overview"></div>
+      </article>
+      <p class="muted">Je weekoverzicht combineert je lessen, examens, taken, deadlines en geplande studiemomenten.</p>
+    </section>
+
+    <section class="page" id="page-tasks">
+      <div class="section-head"><div><span class="eyebrow">NIETS VERGETEN</span><h2>Mijn taken</h2></div><button class="primary-btn" id="addTask">＋ Taak</button></div>
+      <div class="task-summary" id="taskSummary"></div>
+      <div class="section-head"><div><h3>Openstaande taken</h3></div></div>
+      <div id="openTaskList" class="stack"></div>
+      <div class="section-head"><div><h3>Afgewerkt</h3></div></div>
+      <div id="doneTaskList" class="stack"></div>
     </section>
 
     <section class="page" id="page-exams">
@@ -125,6 +149,6 @@
   </dialog>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
   <footer><span>Mijn Examenplanner</span><span>Je gegevens blijven op dit toestel.</span></footer>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

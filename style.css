@@ -133,3 +133,6 @@ body[data-layout="compact"] .page.active{animation:compactFade .18s ease}
 @media(min-width:700px){
  body[data-layout="compact"] .tabs{position:sticky;top:64px;z-index:4;padding:10px 12px;margin:0 0 14px;background:#0b1428ed;border:1px solid #263657;border-radius:14px;backdrop-filter:blur(16px)}
 }
+
+/* Slimme herinneringen en focusmodus */
+.reminder-item{align-items:center}.reminder-mark{width:5px;align-self:stretch;border-radius:8px;background:#a78bfa;flex-shrink:0}.reminder-mark.exam{background:#60a5fa}.focus-card{background:linear-gradient(145deg,#172b50,#171332);border:1px solid #344a78;border-radius:18px;padding:18px;margin-bottom:14px}.focus-card h3{font-size:17px;margin:8px 0}.focus-select-label{display:flex;flex-direction:column;gap:7px;color:#b9c8e8;font-size:11px;margin-top:13px}.focus-select-label select{width:100%;background:#091226;border:1px solid #30466e;border-radius:10px;color:#f2f5ff;padding:12px}.focus-card .muted{margin:10px 0 0}.focus-card .wide{margin-top:12px}

@@ -27,6 +27,7 @@
       <button class="tab" data-page="schedule">Rooster</button>
       <button class="tab" data-page="subjects">Leerstof</button>
       <button class="tab" data-page="study">Studeren</button>
+      <button class="tab" data-page="smartschool">Smartschool</button>
     </nav>
 
     <section class="page active" id="page-dashboard">
@@ -58,6 +59,19 @@
     <section class="page" id="page-subjects">
       <div class="section-head"><div><span class="eyebrow">WAT MOET JE KENNEN?</span><h2>Mijn leerstof</h2></div><button class="primary-btn" id="addSubject">＋ Vak</button></div>
       <div id="subjectList" class="stack"></div>
+    </section>
+
+    <section class="page" id="page-smartschool">
+      <div class="section-head"><div><span class="eyebrow">TAKEN OVERZETTEN</span><h2>Smartschool</h2></div></div>
+      <article class="smartschool-card">
+        <p class="muted">Plak hieronder taken uit Smartschool. Zet elke taak op een aparte regel en kies het juiste vak. De taken worden als open taken aan je leerstof toegevoegd.</p>
+        <label class="smartschool-label" for="smartschoolSubject">Vak</label>
+        <select id="smartschoolSubject" class="smartschool-select"></select>
+        <label class="smartschool-label" for="smartschoolTasks">Taken (één per regel)</label>
+        <textarea id="smartschoolTasks" class="smartschool-textarea" rows="8" placeholder="Oefeningen pagina 24&#10;Hoofdstuk 3 herhalen&#10;Taak uploaden"></textarea>
+        <button class="primary-btn wide" id="importSmartschool">＋ Taken toevoegen</button>
+        <p class="muted" id="smartschoolStatus" aria-live="polite">Voeg eerst je vakken toe bij Leerstof als de keuzelijst leeg is.</p>
+      </article>
     </section>
 
     <section class="page" id="page-study">

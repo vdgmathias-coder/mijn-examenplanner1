@@ -112,3 +112,24 @@ body[data-layout="compact"] .tabs{scrollbar-width:none}
 @media(min-width:700px){
  body[data-layout="compact"] .tabs{border-bottom:1px solid #263657;padding-bottom:17px}
 }
+
+
+/* Stijl drie: vaste compacte productiviteitsinterface */
+body[data-layout="compact"] main{max-width:980px;padding-top:18px}
+body[data-layout="compact"] .topbar{height:64px;padding-left:max(18px,calc((100vw - 980px)/2));padding-right:max(18px,calc((100vw - 980px)/2))}
+body[data-layout="compact"] .brand strong{letter-spacing:-.25px}
+body[data-layout="compact"] .hero{padding:19px 21px;border-radius:18px;margin-bottom:15px}
+body[data-layout="compact"] .hero h1{font-size:23px}
+body[data-layout="compact"] .section-head{margin:19px 0 11px}
+body[data-layout="compact"] .section-head h2{font-size:18px}
+body[data-layout="compact"] .stats-grid{gap:9px}
+body[data-layout="compact"] .stat-card{border-radius:14px;padding:13px;min-height:100px}
+body[data-layout="compact"] .item,body[data-layout="compact"] .agenda-card,body[data-layout="compact"] .smartschool-card{border-radius:13px}
+body[data-layout="compact"] .item{padding:12px}
+body[data-layout="compact"] .tab{border-radius:11px}
+body[data-layout="compact"] .primary-btn,body[data-layout="compact"] .secondary-btn{border-radius:10px}
+body[data-layout="compact"] .page.active{animation:compactFade .18s ease}
+@keyframes compactFade{from{opacity:.65;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:700px){
+ body[data-layout="compact"] .tabs{position:sticky;top:64px;z-index:4;padding:10px 12px;margin:0 0 14px;background:#0b1428ed;border:1px solid #263657;border-radius:14px;backdrop-filter:blur(16px)}
+}

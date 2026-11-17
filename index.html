@@ -9,7 +9,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="icon" href="icons/icon-192.png">
   <title>Mijn Examenplanner</title>
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <header class="topbar">
@@ -43,6 +43,8 @@
       </div>
       <div class="section-head"><div><span class="eyebrow">EERSTVOLGENDE</span><h2>Komende examens</h2></div><button class="text-btn" data-goto="exams">Alles bekijken →</button></div>
       <div id="dashboardExams" class="stack"></div>
+      <div class="section-head"><div><span class="eyebrow">SLIMME HERINNERINGEN</span><h2>Wat vraagt aandacht?</h2></div></div>
+      <div id="smartReminders" class="stack"></div>
       <div class="section-head"><div><span class="eyebrow">SLIM GEPLAND</span><h2>Studieplanning</h2></div><button class="text-btn" data-goto="study">Bekijk →</button></div>
       <div id="dashboardPlan" class="stack"></div>
       <div class="empty-note" id="dashboardHint">Voeg je examens en leerstof toe. Daarna kan Mijn Examenplanner een studieplanning voorstellen.</div>
@@ -119,6 +121,12 @@
 
     <section class="page" id="page-study">
       <div class="section-head"><div><span class="eyebrow">FOCUS EN HERHALING</span><h2>Studeren</h2></div></div>
+      <article class="focus-card">
+        <span class="eyebrow">FOCUSMODUS</span><h3>Werk aan één ding tegelijk</h3>
+        <label class="focus-select-label">Kies je taak of leerstof<select id="focusItem"><option value="">Vrij focusmoment</option></select></label>
+        <p class="muted">Kies een onderdeel en start je focusblok. Je sessie wordt bij voltooiing bij het juiste vak bewaard.</p>
+        <button class="primary-btn wide" id="focusStart">✦ Start focusmodus</button>
+      </article>
       <article class="timer-card">
         <span class="eyebrow">STUDIETIMER</span>
         <div class="timer-display" id="timerDisplay">25:00</div>
@@ -149,6 +157,6 @@
   </dialog>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
   <footer><span>Mijn Examenplanner</span><span>Je gegevens blijven op dit toestel.</span></footer>
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

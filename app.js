@@ -54,7 +54,7 @@ function renderTasks(){
  $("#taskSummary").textContent=open.length+" openstaand · "+done.length+" afgewerkt";
 }
 function taskFields(t={}){
- return field("title","Taak","text",t.title||"")+field("dueDate","Deadline (optioneel)","date",t.dueDate||"")+
+ return field("title","Taak","text",t.title||"")+'<div class="field"><label>Deadline (optioneel)<input name="dueDate" type="date" value="'+esc(t.dueDate||"")+'"></label></div>'+
  '<div class="field"><label>Vak (optioneel)<input name="subject" value="'+esc(t.subject||'')+'"></label></div>'+
  selectField("priority","Prioriteit",["Normaal","Hoog","Laag"].map(x=>({value:x,label:x})),t.priority||"Normaal");
 }

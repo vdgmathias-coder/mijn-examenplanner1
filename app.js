@@ -246,20 +246,33 @@ $("#confirmSmartschool").onclick=()=>{
 };
 
 
-// Uiterlijk wisselen zonder de plannergegevens te wijzigen.
+// Uiterlijk, compacte navigatie en accentkleur zijn los van plannergegevens opgeslagen.
 const THEME_KEY="mijnExamenplanner_theme";
-function applyPlannerTheme(theme){
+const ACCENT_KEY="mijnExamenplanner_accent";
+function applyPlannerTheme(choice){
+ const theme=choice==="classic"?"classic":"modern";
  document.body.dataset.theme=theme;
+ document.body.dataset.layout=choice==="compact"?"compact":"standard";
  const button=$("#themeToggle");
  if(button){
-  button.textContent=theme==="modern"?"◑":"◐";
-  button.title=theme==="modern"?"Terug naar de oude stijl":"Probeer de nieuwe stijl";
+  button.textContent=choice==="classic"?"◐":choice==="modern"?"◑":"▤";
+  button.title=choice==="classic"?"Schakel naar moderne stijl":choice==="modern"?"Schakel naar compacte navigatie":"Terug naar klassieke stijl";
   button.setAttribute("aria-label",button.title);
  }
 }
-applyPlannerTheme(localStorage.getItem(THEME_KEY)==="modern"?"modern":"classic");
+const savedTheme=localStorage.getItem(THEME_KEY);
+let currentTheme=["classic","modern","compact"].includes(savedTheme)?savedTheme:"classic";
+const savedAccent=localStorage.getItem(ACCENT_KEY)||"#438bff";
+document.documentElement.style.setProperty("--user-accent",savedAccent);
+$("#accentPicker").value=savedAccent;
+applyPlannerTheme(currentTheme);
 $("#themeToggle").onclick=()=>{
- const next=document.body.dataset.theme==="modern"?"classic":"modern";
- localStorage.setItem(THEME_KEY,next);
- applyPlannerTheme(next);
+ currentTheme=currentTheme==="classic"?"modern":currentTheme==="modern"?"compact":"classic";
+ localStorage.setItem(THEME_KEY,currentTheme);
+ applyPlannerTheme(currentTheme);
+};
+$("#accentPicker").oninput=e=>{
+ const color=e.target.value;
+ document.documentElement.style.setProperty("--user-accent",color);
+ localStorage.setItem(ACCENT_KEY,color);
 };

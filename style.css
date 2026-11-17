@@ -33,3 +33,47 @@
 .task-item{align-items:center}.task-check{display:flex;align-items:center;flex-shrink:0}.task-check input{width:19px;height:19px;accent-color:#eee}.task-done{text-decoration:line-through;color:#777}.late-pill{background:#3a2424;color:#ffbcbc}
 .week-overview{display:grid;gap:9px}.week-day{background:#0d0d0d;border:1px solid #303030;border-radius:13px;padding:12px}.week-today{border-color:#777}.week-day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;text-transform:capitalize}.week-day-head strong{font-size:13px}.week-day-head span{font-size:11px;color:var(--muted)}.week-event{display:flex;gap:10px;padding:8px 9px;margin-top:6px;border-left:3px solid #777;background:#171717;border-radius:7px;font-size:11px;line-height:1.45}.week-event b{white-space:nowrap;color:#ccc}.week-event.exam{border-left-color:#eee}.week-event.task{border-left-color:#aaa}.week-event.plan{border-left-color:#777}.week-event.lesson{border-left-color:#555}.week-empty{font-size:11px;color:#666;padding:5px 2px}
 @media(min-width:700px){.week-overview{grid-template-columns:1fr 1fr}.week-day:last-child{grid-column:1/-1}}
+
+
+/* Moderne donkerblauwe stijl: alleen actief wanneer de gebruiker dit kiest. */
+body[data-theme="modern"]{
+ --bg:#070b18;--panel:#10182b;--panel2:#17223b;--line:#263657;
+ --text:#f2f5ff;--muted:#9aa9c7;--soft:#cbd5ef;--accent:#72a7ff;
+ background:var(--bg);
+}
+body[data-theme="modern"] .topbar{background:#080e20ed;border-bottom-color:#263657}
+body[data-theme="modern"] .appmark{background:linear-gradient(135deg,#38bdf8,#8b5cf6);color:#fff;box-shadow:0 0 20px #5b8cff55}
+body[data-theme="modern"] .hero{background:linear-gradient(125deg,#14264a,#171332 72%,#10182b);border-color:#344a78;box-shadow:0 12px 35px #02061766}
+body[data-theme="modern"] .hero-stat{border-color:#52669b;background:#111b35}
+body[data-theme="modern"] .eyebrow{color:#91aef5}
+body[data-theme="modern"] .tab{background:#10182b;border-color:#293958;color:#aab8d5}
+body[data-theme="modern"] .tab.active{background:linear-gradient(110deg,#2563eb,#7c3aed);border-color:#647ff5;color:#fff;box-shadow:0 5px 18px #4f46e544}
+body[data-theme="modern"] .primary-btn{background:linear-gradient(110deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 5px 16px #4f46e533}
+body[data-theme="modern"] .secondary-btn,body[data-theme="modern"] .mini-btn,body[data-theme="modern"] .icon-btn{background:#17233d;border-color:#34476c;color:#e4eaff}
+body[data-theme="modern"] .text-btn{color:#9bbaff}
+body[data-theme="modern"] .stat-card,body[data-theme="modern"] .item,body[data-theme="modern"] .agenda-card,body[data-theme="modern"] .smartschool-card,body[data-theme="modern"] .task-summary{background:linear-gradient(145deg,#121d34,#0e172a);border-color:#293b5d;box-shadow:0 7px 20px #02061733}
+body[data-theme="modern"] .progress,body[data-theme="modern"] .subject-progress{background:#263653}
+body[data-theme="modern"] .progress i,body[data-theme="modern"] .subject-progress i{background:linear-gradient(90deg,#38bdf8,#8b5cf6)}
+body[data-theme="modern"] .timer-card{background:linear-gradient(145deg,#172b50,#171332);border-color:#344a78}
+body[data-theme="modern"] .timer-display{background:linear-gradient(100deg,#67e8f9,#a78bfa);background-clip:text;-webkit-background-clip:text;color:transparent}
+body[data-theme="modern"] .timer-mode{color:#a5b4fc}
+body[data-theme="modern"] .calendar-cell,body[data-theme="modern"] .week-day{background:#0b1428;border-color:#243655;color:#e6edff}
+body[data-theme="modern"] .calendar-cell.selected{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff}
+body[data-theme="modern"] .calendar-cell.today{border-color:#60a5fa}
+body[data-theme="modern"] .exam-dot,body[data-theme="modern"] .agenda-event-mark.exam,body[data-theme="modern"] .week-event.exam{background:#60a5fa;border-left-color:#60a5fa}
+body[data-theme="modern"] .task-dot,body[data-theme="modern"] .agenda-event-mark.task,body[data-theme="modern"] .week-event.task{background:#a78bfa;border-left-color:#a78bfa}
+body[data-theme="modern"] .plan-dot,body[data-theme="modern"] .agenda-event-mark.plan,body[data-theme="modern"] .week-event.plan{background:#38bdf8;border-left-color:#38bdf8}
+body[data-theme="modern"] .agenda-event-mark.lesson,body[data-theme="modern"] .week-event.lesson{background:#64748b;border-left-color:#64748b}
+body[data-theme="modern"] .week-event{background:#15213a}
+body[data-theme="modern"] .pill{background:#202f50;color:#c9d7ff}
+body[data-theme="modern"] .late-pill{background:#492b45;color:#ffc6e8}
+body[data-theme="modern"] .empty-note,body[data-theme="modern"] .empty{border-color:#34476c}
+body[data-theme="modern"] input,body[data-theme="modern"] select,body[data-theme="modern"] textarea,
+body[data-theme="modern"] .smartschool-input,body[data-theme="modern"] .smartschool-textarea{background:#091226;border-color:#30466e;color:#f2f5ff}
+body[data-theme="modern"] dialog{background:#101a30;border-color:#34476c;color:#f2f5ff}
+body[data-theme="modern"] .smartschool-task-preview{background:#0d172b;border-color:#2c4166}
+body[data-theme="modern"] .subsection{border-top-color:#293b5d}
+body[data-theme="modern"] .calendar-dots b{box-shadow:0 0 5px currentColor}
+body[data-theme="modern"] button{transition:filter .15s ease,transform .15s ease}
+body[data-theme="modern"] button:hover{filter:brightness(1.12)}
+@media(min-width:700px){body[data-theme="modern"] .stat-card:hover,body[data-theme="modern"] .item:hover{border-color:#49659b}}

@@ -244,3 +244,22 @@ $("#confirmSmartschool").onclick=()=>{
  smartschoolPreview=[];$("#smartschoolTasks").value="";renderSmartschoolPreview();
  $("#smartschoolStatus").textContent=added+" taak/taken toegevoegd."+ (duplicates?" "+duplicates+" dubbele overgeslagen.":"");save();
 };
+
+
+// Uiterlijk wisselen zonder de plannergegevens te wijzigen.
+const THEME_KEY="mijnExamenplanner_theme";
+function applyPlannerTheme(theme){
+ document.body.dataset.theme=theme;
+ const button=$("#themeToggle");
+ if(button){
+  button.textContent=theme==="modern"?"◑":"◐";
+  button.title=theme==="modern"?"Terug naar de oude stijl":"Probeer de nieuwe stijl";
+  button.setAttribute("aria-label",button.title);
+ }
+}
+applyPlannerTheme(localStorage.getItem(THEME_KEY)==="modern"?"modern":"classic");
+$("#themeToggle").onclick=()=>{
+ const next=document.body.dataset.theme==="modern"?"classic":"modern";
+ localStorage.setItem(THEME_KEY,next);
+ applyPlannerTheme(next);
+};

@@ -246,26 +246,13 @@ $("#confirmSmartschool").onclick=()=>{
 };
 
 
-// Uiterlijk, compacte navigatie en accentkleur zijn los van plannergegevens opgeslagen.
-const THEME_KEY="mijnExamenplanner_theme";
+// Stijl drie is de vaste stijl; alleen de accentkleur blijft aanpasbaar.
 const ACCENT_KEY="mijnExamenplanner_accent";
-function applyPlannerTheme(choice){
- const theme=choice==="classic"?"classic":"modern";
- document.body.dataset.theme=theme;
- document.body.dataset.layout=choice==="compact"?"compact":"standard";
- const button=$("#themeToggle");
- if(button){
-  button.textContent=choice==="classic"?"◐":choice==="modern"?"◑":"▤";
-  button.title=choice==="classic"?"Schakel naar moderne stijl":choice==="modern"?"Schakel naar compacte navigatie":"Terug naar klassieke stijl";
-  button.setAttribute("aria-label",button.title);
- }
-}
-let currentTheme="compact";
-localStorage.setItem(THEME_KEY,"compact");
+document.body.dataset.theme="modern";
+document.body.dataset.layout="compact";
 const savedAccent=localStorage.getItem(ACCENT_KEY)||"#438bff";
 document.documentElement.style.setProperty("--user-accent",savedAccent);
 $("#accentPicker").value=savedAccent;
-applyPlannerTheme("compact");
 $("#accentPicker").oninput=e=>{
  const color=e.target.value;
  document.documentElement.style.setProperty("--user-accent",color);

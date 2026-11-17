@@ -24,6 +24,7 @@
     <nav class="tabs" aria-label="Hoofdnavigatie">
       <button class="tab active" data-page="dashboard">Overzicht</button>
       <button class="tab" data-page="exams">Examens</button>
+      <button class="tab" data-page="agenda">Agenda</button>
       <button class="tab" data-page="schedule">Rooster</button>
       <button class="tab" data-page="subjects">Leerstof</button>
       <button class="tab" data-page="study">Studeren</button>
@@ -43,6 +44,24 @@
       <div class="section-head"><div><span class="eyebrow">SLIM GEPLAND</span><h2>Studieplanning</h2></div><button class="text-btn" data-goto="study">Bekijk →</button></div>
       <div id="dashboardPlan" class="stack"></div>
       <div class="empty-note" id="dashboardHint">Voeg je examens en leerstof toe. Daarna kan Mijn Examenplanner een studieplanning voorstellen.</div>
+    </section>
+
+
+    <section class="page" id="page-agenda">
+      <div class="section-head"><div><span class="eyebrow">ALLES OP ÉÉN PLEK</span><h2>Mijn agenda</h2></div></div>
+      <article class="agenda-card">
+        <div class="agenda-monthbar">
+          <button class="secondary-btn" id="agendaPrev" aria-label="Vorige maand">‹</button>
+          <h3 id="agendaMonth">Maand</h3>
+          <button class="secondary-btn" id="agendaNext" aria-label="Volgende maand">›</button>
+        </div>
+        <div class="calendar-weekdays"><span>Ma</span><span>Di</span><span>Wo</span><span>Do</span><span>Vr</span><span>Za</span><span>Zo</span></div>
+        <div class="calendar-grid" id="agendaCalendar"></div>
+        <div class="agenda-legend"><span><i class="legend-dot exam-dot"></i>Examen</span><span><i class="legend-dot task-dot"></i>Deadline</span><span><i class="legend-dot plan-dot"></i>Studeren</span></div>
+      </article>
+      <div class="section-head"><div><span class="eyebrow">GESELECTEERDE DAG</span><h2 id="agendaSelectedDate">Vandaag</h2></div></div>
+      <div id="agendaDayEvents" class="stack"></div>
+      <p class="muted">De agenda verzamelt automatisch je examens, deadlines uit Smartschool, geplande studiemomenten en vaste lessen.</p>
     </section>
 
     <section class="page" id="page-exams">

@@ -27,21 +27,14 @@ function render(){
  $("#examList").innerHTML=exams.map(examHTML).join("")||'<div class="empty">Tik op “＋ Examen” om je eerste examen toe te voegen.</div>';
  $("#lessonList").innerHTML=[...data.lessons].sort((a,b)=>a.day-b.day||a.start.localeCompare(b.start)).map(l=>`<div class="item"><div class="item-main"><div class="item-title">${DAYS[l.day]} · ${esc(l.subject)}</div><div class="item-sub">${l.start} – ${l.end}</div></div><div class="item-actions"><button class="mini-btn" onclick="editLesson('${l.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('lessons','${l.id}')">✕</button></div></div>`).join("")||'<div class="empty">Je rooster is nog leeg.</div>';
  $("#subjectList").innerHTML=data.subjects.map(subjectHTML).join("")||'<div class="empty">Voeg je vakken toe en zet er hoofdstukken, taken of notities bij.</div>';
- const smartschoolSelect=$("#smartschoolSubject");
- if(smartschoolSelect){
-   const previous=smartschoolSelect.value;
-   smartschoolSelect.innerHTML=data.subjects.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>').join("");
-   if(data.subjects.some(s=>s.id===previous))smartschoolSelect.value=previous;
-   smartschoolSelect.disabled=!data.subjects.length;
-   $("#importSmartschool").disabled=!data.subjects.length;
- }
+ renderSmartschoolPreview();
  $("#planList").innerHTML=data.plans.length?data.plans.slice().sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).map(planHTML).join(""):'<div class="empty">Nog geen planning. Voeg examens en leerstof toe en maak daarna je planning.</div>';
  $("#dashboardPlan").innerHTML=data.plans.slice().sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).slice(0,3).map(planHTML).join("")||'<div class="empty">Je studieplanning verschijnt hier.</div>';
  $("#dashboardHint").style.display=(!data.exams.length||!data.subjects.length)?"block":"none";
  $("#sessionList").innerHTML=data.sessions.slice().reverse().slice(0,10).map(s=>`<div class="item"><div class="item-main"><div class="item-title">${esc(s.subject||"Studiesessie")}</div><div class="item-sub">${fmtDate(s.date)} · ${s.minutes} minuten</div></div><span class="pill">Voltooid</span></div>`).join("")||'<div class="empty">Je afgeronde sessies verschijnen hier.</div>';
 }
 function examHTML(e){let n=daysUntil(e.date),label=n<0?`${Math.abs(n)} dagen geleden`:n===0?"Vandaag":n===1?"Morgen":`Nog ${n} dagen`;return `<div class="item"><div class="item-main"><div class="item-title">${esc(e.subject)}</div><div class="item-sub">${fmtDate(e.date)} · ${e.time||"Uur niet ingevuld"}${e.notes?"<br>"+esc(e.notes):""}</div><span class="pill">${label}</span></div><div class="item-actions"><button class="mini-btn" onclick="editExam('${e.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('exams','${e.id}')">✕</button></div></div>`}
-function subjectHTML(s){let done=s.topics.filter(t=>t.done).length,p=s.topics.length?Math.round(done/s.topics.length*100):0;return `<article class="item" style="display:block"><div style="display:flex;justify-content:space-between;align-items:center"><div class="item-title">${esc(s.name)}</div><div class="item-actions"><button class="mini-btn" onclick="addTopic('${s.id}')">＋ Onderdeel</button><button class="mini-btn" onclick="editSubject('${s.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('subjects','${s.id}')">✕</button></div></div><div class="item-sub">${done}/${s.topics.length} afgewerkt · ${p}%</div><div class="subject-progress"><i style="width:${p}%"></i></div><div class="subsection">${s.topics.map(t=>`<label class="learn-row ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTopic('${s.id}','${t.id}',this.checked)"><span>${esc(t.title)}</span><small>${esc(t.type)}</small><button class="mini-btn" onclick="event.preventDefault();editTopic('${s.id}','${t.id}')">✎</button><button class="mini-btn" onclick="event.preventDefault();deleteTopic('${s.id}','${t.id}')">✕</button></label>`).join("")||'<div class="item-sub">Nog geen leerstof toegevoegd.</div>'}</div></article>`}
+function subjectHTML(s){let done=s.topics.filter(t=>t.done).length,p=s.topics.length?Math.round(done/s.topics.length*100):0;return `<article class="item" style="display:block"><div style="display:flex;justify-content:space-between;align-items:center"><div class="item-title">${esc(s.name)}</div><div class="item-actions"><button class="mini-btn" onclick="addTopic('${s.id}')">＋ Onderdeel</button><button class="mini-btn" onclick="editSubject('${s.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('subjects','${s.id}')">✕</button></div></div><div class="item-sub">${done}/${s.topics.length} afgewerkt · ${p}%</div><div class="subject-progress"><i style="width:${p}%"></i></div><div class="subsection">${s.topics.map(t=>`<label class="learn-row ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTopic('${s.id}','${t.id}',this.checked)"><span>${esc(t.title)}${t.dueDate?'<small class="topic-deadline">Deadline: '+fmtDate(t.dueDate)+'</small>':""}</span><small>${esc(t.type)}</small><button class="mini-btn" onclick="event.preventDefault();editTopic('${s.id}','${t.id}')">✎</button><button class="mini-btn" onclick="event.preventDefault();deleteTopic('${s.id}','${t.id}')">✕</button></label>`).join("")||'<div class="item-sub">Nog geen leerstof toegevoegd.</div>'}</div></article>`}
 function planHTML(p){return `<div class="item"><div class="item-main"><div class="item-title">${esc(p.subject)} · ${esc(p.topic)}</div><div class="item-sub">${fmtDate(p.date)} · ${p.start}–${p.end} · ${p.minutes} min${p.note?"<br>"+esc(p.note):""}</div></div><div class="item-actions"><button class="mini-btn" onclick="editPlan('${p.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('plans','${p.id}')">✕</button></div></div>`}
 function field(name,label,type="text",value="",extra=""){return `<div class="field"><label>${label}<input name="${name}" type="${type}" value="${esc(value)}" ${extra} required></label></div>`}
 function selectField(name,label,opts,value){return `<div class="field"><label>${label}<select name="${name}" required>${opts.map(o=>`<option value="${esc(o.value)}" ${String(o.value)===String(value)?"selected":""}>${esc(o.label)}</option>`).join("")}</select></label></div>`}
@@ -116,19 +109,53 @@ if("serviceWorker" in navigator && location.protocol!=="file:"){window.addEventL
 render();updateTimer();
 
 
-// Smartschool: handmatig geplakte taken toevoegen aan het gekozen vak.
-$("#importSmartschool").onclick=()=>{
- const subject=data.subjects.find(s=>s.id===$("#smartschoolSubject").value);
+// Smartschool: takenlijst analyseren, controleren en importeren.
+let smartschoolPreview=[];
+function parseSmartschoolDate(text){
+ const a=text.match(/\b(20\d{2})-(\d{1,2})-(\d{1,2})\b/);
+ const b=text.match(/\b(\d{1,2})[/.\-](\d{1,2})\/(20\d{2})\b/) || text.match(/\b(\d{1,2})[.\-](\d{1,2})[.\-](20\d{2})\b/);
+ let y,m,d;if(a){y=+a[1];m=+a[2];d=+a[3]}else if(b){d=+b[1];m=+b[2];y=+b[3]}else return "";
+ const dt=new Date(y,m-1,d);return dt.getFullYear()===y&&dt.getMonth()===m-1&&dt.getDate()===d?y+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0"):"";
+}
+function analyzeSmartschool(){
+ if(!data.subjects.length){$("#smartschoolStatus").textContent="Voeg eerst je vakken toe bij Leerstof.";return}
  const lines=$("#smartschoolTasks").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- if(!subject){$("#smartschoolStatus").textContent="Voeg eerst een vak toe bij Leerstof.";return}
- if(!lines.length){$("#smartschoolStatus").textContent="Plak eerst één of meer taken, elk op een aparte regel.";return}
- let added=0,duplicates=0;
- for(const title of lines){
-   if(subject.topics.some(t=>t.title.toLowerCase()===title.toLowerCase())){duplicates++;continue}
-   subject.topics.push({id:uid(),title,type:"Taak",done:false});
-   added++;
+ if(!lines.length){$("#smartschoolStatus").textContent="Plak eerst je takenlijst uit Smartschool.";return}
+ smartschoolPreview=[];let current=data.subjects[0];
+ for(let raw of lines){
+  let line=raw.replace(/^\s*(?:[-*•▪◦]|\d+[.)])\s*/,"").trim();if(!line)continue;
+  const heading=line.replace(/[:：]$/,"").trim();
+  const headingSubject=data.subjects.find(s=>s.name.toLowerCase()===heading.toLowerCase());
+  if(headingSubject){current=headingSubject;continue}
+  const label=line.match(/^(?:vak|vaknaam|onderwerp)\s*:\s*(.+)$/i);
+  if(label){const found=data.subjects.find(s=>s.name.toLowerCase()===label[1].trim().toLowerCase());if(found)current=found;continue}
+  if(/^(smartschool|taken|opdrachten|to do|deadline|vakken|openstaand|afgewerkt)$/i.test(line))continue;
+  let subject=current;
+  const prefix=data.subjects.find(s=>line.toLowerCase().startsWith(s.name.toLowerCase()+":")||line.toLowerCase().startsWith(s.name.toLowerCase()+" -"));
+  if(prefix){subject=prefix;line=line.slice(prefix.name.length).replace(/^\s*[:\-–|]\s*/,"")}
+  const dueDate=parseSmartschoolDate(line);
+  let title=line.replace(/\b20\d{2}-\d{1,2}-\d{1,2}\b|\b\d{1,2}[/.\-]\d{1,2}[/.\-]20\d{2}\b/g," ").replace(/\b(?:deadline|tegen|uiterlijk|indienen voor|af te geven op)\s*:?/ig," ").replace(/\s{2,}/g," ").replace(/^[\s:|–—-]+|[\s:|–—-]+$/g,"").trim();
+  if(title.length<2)continue;
+  const type=/\b(toets|test|examen|proefwerk)\b/i.test(title)?"Toets":"Taak";
+  if(!smartschoolPreview.some(t=>t.title.toLowerCase()===title.toLowerCase()&&t.subjectId===subject.id))smartschoolPreview.push({title,subjectId:subject.id,dueDate,type});
  }
- $("#smartschoolTasks").value="";
- $("#smartschoolStatus").textContent=added+" taak/taken toegevoegd aan "+subject.name+"."+ (duplicates?" "+duplicates+" dubbele taak/taken overgeslagen.":"");
- save();
+ renderSmartschoolPreview();
+ $("#smartschoolStatus").textContent=smartschoolPreview.length?smartschoolPreview.length+" mogelijke taak/taken herkend. Controleer alles hieronder.":"Ik kon geen duidelijke taken herkennen. Probeer elke taak op een aparte regel te plakken.";
+}
+function renderSmartschoolPreview(){
+ const host=$("#smartschoolPreview"),button=$("#confirmSmartschool");if(!host||!button)return;
+ if(!smartschoolPreview.length){host.innerHTML="";button.hidden=true;return}
+ host.innerHTML="<h3 class=\"smartschool-preview-title\">Controleer de herkende taken</h3>"+smartschoolPreview.map((t,i)=>{
+  const opts=data.subjects.map(s=>"<option value=\""+esc(s.id)+"\" "+(s.id===t.subjectId?"selected":"")+">"+esc(s.name)+"</option>").join("");
+  return "<div class=\"smartschool-task-preview\"><label class=\"smartschool-label\">Taak "+(i+1)+"</label><input class=\"smartschool-input\" data-index=\""+i+"\" data-field=\"title\" value=\""+esc(t.title)+"\"><label class=\"smartschool-label\">Vak</label><select class=\"smartschool-input\" data-index=\""+i+"\" data-field=\"subjectId\">"+opts+"</select><div class=\"smartschool-preview-grid\"><label class=\"smartschool-label\">Deadline (optioneel)<input class=\"smartschool-input\" type=\"date\" data-index=\""+i+"\" data-field=\"dueDate\" value=\""+esc(t.dueDate)+"\"></label><label class=\"smartschool-label\">Soort<select class=\"smartschool-input\" data-index=\""+i+"\" data-field=\"type\"><option value=\"Taak\" "+(t.type==="Taak"?"selected":"")+">Taak</option><option value=\"Toets\" "+(t.type==="Toets"?"selected":"")+">Toets</option></select></label></div></div>";
+ }).join("");button.hidden=false;
+}
+$("#analyzeSmartschool").onclick=analyzeSmartschool;
+$("#smartschoolPreview").addEventListener("input",e=>{const el=e.target;if(el.dataset.index===undefined)return;const t=smartschoolPreview[+el.dataset.index];if(t)t[el.dataset.field]=el.value});
+$("#smartschoolPreview").addEventListener("change",e=>{const el=e.target;if(el.dataset.index===undefined)return;const t=smartschoolPreview[+el.dataset.index];if(t)t[el.dataset.field]=el.value});
+$("#confirmSmartschool").onclick=()=>{
+ let added=0,duplicates=0;
+ for(const t of smartschoolPreview){const s=data.subjects.find(x=>x.id===t.subjectId),title=t.title.trim();if(!s||!title)continue;if(s.topics.some(x=>x.title.toLowerCase()===title.toLowerCase())){duplicates++;continue}s.topics.push({id:uid(),title,type:t.type||"Taak",done:false,dueDate:t.dueDate||""});added++}
+ smartschoolPreview=[];$("#smartschoolTasks").value="";renderSmartschoolPreview();
+ $("#smartschoolStatus").textContent=added+" taak/taken toegevoegd."+ (duplicates?" "+duplicates+" dubbele overgeslagen.":"");save();
 };

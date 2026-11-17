@@ -2,6 +2,7 @@ const KEY="mijnExamenplanner_v1";
 const DAYS=["Zondag","Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag"];
 const $=s=>document.querySelector(s);
 let data=load(), editing=null, timer={mode:"focus",remaining:1500,running:false,interval:null};
+let smartschoolPreview=[];
 function blank(){return {exams:[],lessons:[],subjects:[],plans:[],sessions:[],settings:{}}}
 function load(){try{return {...blank(),...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch{return blank()}}
 function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
@@ -110,7 +111,6 @@ render();updateTimer();
 
 
 // Smartschool: takenlijst analyseren, controleren en importeren.
-let smartschoolPreview=[];
 function parseSmartschoolDate(text){
  const a=text.match(/\b(20\d{2})-(\d{1,2})-(\d{1,2})\b/);
  const b=text.match(/\b(\d{1,2})[/.\-](\d{1,2})\/(20\d{2})\b/) || text.match(/\b(\d{1,2})[.\-](\d{1,2})[.\-](20\d{2})\b/);

@@ -5,7 +5,7 @@ let data=load(), editing=null, timer={mode:"focus",remaining:1500,running:false,
 let smartschoolPreview=[];
 let agendaMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
 let agendaSelected=localISO(new Date());
-function blank(){return {exams:[],lessons:[],subjects:[],plans:[],sessions:[],settings:{}}}
+function blank(){return {exams:[],lessons:[],subjects:[],plans:[],sessions:[],tasks:[],settings:{}}}
 function load(){try{return {...blank(),...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch{return blank()}}
 function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
 function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -33,11 +33,59 @@ function render(){
  $("#subjectList").innerHTML=data.subjects.map(subjectHTML).join("")||'<div class="empty">Voeg je vakken toe en zet er hoofdstukken, taken of notities bij.</div>';
  renderSmartschoolPreview();
  renderAgenda();
+ renderTasks();
+ renderWeek();
  $("#planList").innerHTML=data.plans.length?data.plans.slice().sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).map(planHTML).join(""):'<div class="empty">Nog geen planning. Voeg examens en leerstof toe en maak daarna je planning.</div>';
  $("#dashboardPlan").innerHTML=data.plans.slice().sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).slice(0,3).map(planHTML).join("")||'<div class="empty">Je studieplanning verschijnt hier.</div>';
  $("#dashboardHint").style.display=(!data.exams.length||!data.subjects.length)?"block":"none";
  $("#sessionList").innerHTML=data.sessions.slice().reverse().slice(0,10).map(s=>`<div class="item"><div class="item-main"><div class="item-title">${esc(s.subject||"Studiesessie")}</div><div class="item-sub">${fmtDate(s.date)} · ${s.minutes} minuten</div></div><span class="pill">Voltooid</span></div>`).join("")||'<div class="empty">Je afgeronde sessies verschijnen hier.</div>';
 }
+
+function taskHTML(t){
+ const due=t.dueDate?fmtDate(t.dueDate):"Geen deadline";
+ const late=t.dueDate&&!t.done&&daysUntil(t.dueDate)<0;
+ return '<article class="item task-item"><label class="task-check"><input type="checkbox" '+(t.done?'checked':'')+' onchange="toggleTask(\''+t.id+'\',this.checked)"><span></span></label><div class="item-main"><div class="item-title '+(t.done?'task-done':'')+'">'+esc(t.title)+'</div><div class="item-sub">'+esc(t.subject||"Geen vak")+' · '+due+'</div><span class="pill '+(late?'late-pill':'')+'">'+(late?'Te laat':t.done?'Afgewerkt':t.priority==="Hoog"?'Hoge prioriteit':t.priority==="Laag"?'Lage prioriteit':'Normale prioriteit')+'</span></div><div class="item-actions"><button class="mini-btn" onclick="editTask(\''+t.id+'\')">Bewerk</button><button class="mini-btn" onclick="removeTask(\''+t.id+'\')">✕</button></div></article>';
+}
+function renderTasks(){
+ const open=data.tasks.filter(t=>!t.done).sort((a,b)=>(a.dueDate||"9999").localeCompare(b.dueDate||"9999"));
+ const done=data.tasks.filter(t=>t.done);
+ $("#openTaskList").innerHTML=open.map(taskHTML).join("")||'<div class="empty">Geen openstaande taken. Goed bezig!</div>';
+ $("#doneTaskList").innerHTML=done.map(taskHTML).join("")||'<div class="empty">Je afgewerkte taken verschijnen hier.</div>';
+ $("#taskSummary").textContent=open.length+" openstaand · "+done.length+" afgewerkt";
+}
+function taskFields(t={}){
+ return field("title","Taak","text",t.title||"")+field("dueDate","Deadline (optioneel)","date",t.dueDate||"")+
+ '<div class="field"><label>Vak (optioneel)<input name="subject" value="'+esc(t.subject||'')+'"></label></div>'+
+ selectField("priority","Prioriteit",["Normaal","Hoog","Laag"].map(x=>({value:x,label:x})),t.priority||"Normaal");
+}
+$("#addTask").onclick=()=>openDialog("Taak toevoegen",taskFields(),v=>data.tasks.push({id:uid(),title:v.title.trim(),dueDate:v.dueDate,subject:v.subject.trim(),priority:v.priority,done:false}));
+window.editTask=id=>{const t=data.tasks.find(x=>x.id===id);if(!t)return;openDialog("Taak aanpassen",taskFields(t),v=>Object.assign(t,{...v,title:v.title.trim(),subject:v.subject.trim()}))};
+window.toggleTask=(id,done)=>{const t=data.tasks.find(x=>x.id===id);if(t){t.done=done;save()}};
+window.removeTask=id=>{if(confirm("Deze taak verwijderen?")){data.tasks=data.tasks.filter(t=>t.id!==id);save()}};
+let weekStart=new Date();weekStart.setDate(weekStart.getDate()-(weekStart.getDay()+6)%7);weekStart.setHours(0,0,0,0);
+function weekEvents(date){
+ const ev=[];
+ data.lessons.filter(l=>+l.day===dateLocal(date).getDay()).forEach(l=>ev.push({time:l.start,title:"Les · "+l.subject,detail:l.end?"tot "+l.end:"",kind:"lesson"}));
+ data.exams.filter(e=>e.date===date).forEach(e=>ev.push({time:e.time||"Hele dag",title:"Examen · "+e.subject,detail:"",kind:"exam"}));
+ data.tasks.filter(t=>t.dueDate===date&&!t.done).forEach(t=>ev.push({time:"Deadline",title:"Taak · "+t.title,detail:t.subject||"",kind:"task"}));
+ data.subjects.forEach(sub=>sub.topics.filter(t=>t.dueDate===date).forEach(t=>ev.push({time:"Deadline",title:t.title,detail:sub.name,kind:"task"})));
+ data.plans.filter(p=>p.date===date).forEach(p=>ev.push({time:p.start||"Studeren",title:"Studeren · "+p.subject,detail:p.topic,kind:"plan"}));
+ return ev.sort((a,b)=>a.time.localeCompare(b.time));
+}
+function renderWeek(){
+ const host=$("#weekOverview"),label=$("#weekLabel");if(!host||!label)return;
+ const end=new Date(weekStart);end.setDate(end.getDate()+6);
+ label.textContent=weekStart.toLocaleDateString("nl-BE",{day:"numeric",month:"short"})+" – "+end.toLocaleDateString("nl-BE",{day:"numeric",month:"long",year:"numeric"});
+ let days=[];
+ for(let i=0;i<7;i++){
+  const d=new Date(weekStart);d.setDate(d.getDate()+i);const iso=localISO(d),events=weekEvents(iso);
+  days.push('<section class="week-day '+(iso===localISO(new Date())?'week-today':'')+'"><div class="week-day-head"><strong>'+d.toLocaleDateString("nl-BE",{weekday:"long"})+'</strong><span>'+d.toLocaleDateString("nl-BE",{day:"numeric",month:"short"})+'</span></div>'+(events.length?events.map(e=>'<div class="week-event '+e.kind+'"><b>'+esc(e.time)+'</b><span>'+esc(e.title)+(e.detail?' · '+esc(e.detail):'')+'</span></div>').join(""):'<div class="week-empty">Niets gepland</div>')+'</section>');
+ }
+ host.innerHTML=days.join("");
+}
+$("#weekPrev").onclick=()=>{weekStart.setDate(weekStart.getDate()-7);renderWeek()};
+$("#weekNext").onclick=()=>{weekStart.setDate(weekStart.getDate()+7);renderWeek()};
+
 function examHTML(e){let n=daysUntil(e.date),label=n<0?`${Math.abs(n)} dagen geleden`:n===0?"Vandaag":n===1?"Morgen":`Nog ${n} dagen`;return `<div class="item"><div class="item-main"><div class="item-title">${esc(e.subject)}</div><div class="item-sub">${fmtDate(e.date)} · ${e.time||"Uur niet ingevuld"}${e.notes?"<br>"+esc(e.notes):""}</div><span class="pill">${label}</span></div><div class="item-actions"><button class="mini-btn" onclick="editExam('${e.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('exams','${e.id}')">✕</button></div></div>`}
 function subjectHTML(s){let done=s.topics.filter(t=>t.done).length,p=s.topics.length?Math.round(done/s.topics.length*100):0;return `<article class="item" style="display:block"><div style="display:flex;justify-content:space-between;align-items:center"><div class="item-title">${esc(s.name)}</div><div class="item-actions"><button class="mini-btn" onclick="addTopic('${s.id}')">＋ Onderdeel</button><button class="mini-btn" onclick="editSubject('${s.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('subjects','${s.id}')">✕</button></div></div><div class="item-sub">${done}/${s.topics.length} afgewerkt · ${p}%</div><div class="subject-progress"><i style="width:${p}%"></i></div><div class="subsection">${s.topics.map(t=>`<label class="learn-row ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTopic('${s.id}','${t.id}',this.checked)"><span>${esc(t.title)}${t.dueDate?'<small class="topic-deadline">Deadline: '+fmtDate(t.dueDate)+'</small>':""}</span><small>${esc(t.type)}</small><button class="mini-btn" onclick="event.preventDefault();editTopic('${s.id}','${t.id}')">✎</button><button class="mini-btn" onclick="event.preventDefault();deleteTopic('${s.id}','${t.id}')">✕</button></label>`).join("")||'<div class="item-sub">Nog geen leerstof toegevoegd.</div>'}</div></article>`}
 function planHTML(p){return `<div class="item"><div class="item-main"><div class="item-title">${esc(p.subject)} · ${esc(p.topic)}</div><div class="item-sub">${fmtDate(p.date)} · ${p.start}–${p.end} · ${p.minutes} min${p.note?"<br>"+esc(p.note):""}</div></div><div class="item-actions"><button class="mini-btn" onclick="editPlan('${p.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('plans','${p.id}')">✕</button></div></div>`}
@@ -117,6 +165,7 @@ render();updateTimer();
 
 function agendaEventsFor(date){
  const events=[];
+ data.tasks.filter(t=>t.dueDate===date&&!t.done).forEach(t=>events.push({kind:"task",time:"Deadline",title:"Taak · "+t.title,detail:t.subject||""}));
  data.exams.filter(e=>e.date===date).forEach(e=>events.push({kind:"exam",time:e.time||"Hele dag",title:"Examen · "+e.subject,detail:e.notes||""}));
  data.subjects.forEach(s=>s.topics.filter(t=>t.dueDate===date).forEach(t=>events.push({kind:"task",time:"Deadline",title:t.title,detail:s.name})));
  data.plans.filter(p=>p.date===date).forEach(p=>events.push({kind:"plan",time:(p.start||"")+"–"+(p.end||""),title:"Studeren · "+p.subject,detail:p.topic}));

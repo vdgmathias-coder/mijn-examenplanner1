@@ -260,17 +260,12 @@ function applyPlannerTheme(choice){
   button.setAttribute("aria-label",button.title);
  }
 }
-const savedTheme=localStorage.getItem(THEME_KEY);
-let currentTheme=["classic","modern","compact"].includes(savedTheme)?savedTheme:"classic";
+let currentTheme="compact";
+localStorage.setItem(THEME_KEY,"compact");
 const savedAccent=localStorage.getItem(ACCENT_KEY)||"#438bff";
 document.documentElement.style.setProperty("--user-accent",savedAccent);
 $("#accentPicker").value=savedAccent;
-applyPlannerTheme(currentTheme);
-$("#themeToggle").onclick=()=>{
- currentTheme=currentTheme==="classic"?"modern":currentTheme==="modern"?"compact":"classic";
- localStorage.setItem(THEME_KEY,currentTheme);
- applyPlannerTheme(currentTheme);
-};
+applyPlannerTheme("compact");
 $("#accentPicker").oninput=e=>{
  const color=e.target.value;
  document.documentElement.style.setProperty("--user-accent",color);

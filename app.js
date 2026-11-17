@@ -27,6 +27,14 @@ function render(){
  $("#examList").innerHTML=exams.map(examHTML).join("")||'<div class="empty">Tik op “＋ Examen” om je eerste examen toe te voegen.</div>';
  $("#lessonList").innerHTML=[...data.lessons].sort((a,b)=>a.day-b.day||a.start.localeCompare(b.start)).map(l=>`<div class="item"><div class="item-main"><div class="item-title">${DAYS[l.day]} · ${esc(l.subject)}</div><div class="item-sub">${l.start} – ${l.end}</div></div><div class="item-actions"><button class="mini-btn" onclick="editLesson('${l.id}')">Bewerk</button><button class="mini-btn" onclick="removeItem('lessons','${l.id}')">✕</button></div></div>`).join("")||'<div class="empty">Je rooster is nog leeg.</div>';
  $("#subjectList").innerHTML=data.subjects.map(subjectHTML).join("")||'<div class="empty">Voeg je vakken toe en zet er hoofdstukken, taken of notities bij.</div>';
+ const smartschoolSelect=$("#smartschoolSubject");
+ if(smartschoolSelect){
+   const previous=smartschoolSelect.value;
+   smartschoolSelect.innerHTML=data.subjects.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>').join("");
+   if(data.subjects.some(s=>s.id===previous))smartschoolSelect.value=previous;
+   smartschoolSelect.disabled=!data.subjects.length;
+   $("#importSmartschool").disabled=!data.subjects.length;
+ }
  $("#planList").innerHTML=data.plans.length?data.plans.slice().sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).map(planHTML).join(""):'<div class="empty">Nog geen planning. Voeg examens en leerstof toe en maak daarna je planning.</div>';
  $("#dashboardPlan").innerHTML=data.plans.slice().sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start)).slice(0,3).map(planHTML).join("")||'<div class="empty">Je studieplanning verschijnt hier.</div>';
  $("#dashboardHint").style.display=(!data.exams.length||!data.subjects.length)?"block":"none";
@@ -106,3 +114,21 @@ $("#restoreBtn").onclick=()=>$("#importFile").click();
 $("#importFile").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let imported=JSON.parse(await f.text());if(!imported||!Array.isArray(imported.exams)||!Array.isArray(imported.subjects))throw Error();if(confirm("Je huidige gegevens vervangen door deze reservekopie?")){data={...blank(),...imported};save();alert("Reservekopie teruggezet.")}}catch{alert("Dit bestand lijkt geen geldige reservekopie van Mijn Examenplanner.")}e.target.value=""};
 if("serviceWorker" in navigator && location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn))}
 render();updateTimer();
+
+
+// Smartschool: handmatig geplakte taken toevoegen aan het gekozen vak.
+$("#importSmartschool").onclick=()=>{
+ const subject=data.subjects.find(s=>s.id===$("#smartschoolSubject").value);
+ const lines=$("#smartschoolTasks").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ if(!subject){$("#smartschoolStatus").textContent="Voeg eerst een vak toe bij Leerstof.";return}
+ if(!lines.length){$("#smartschoolStatus").textContent="Plak eerst één of meer taken, elk op een aparte regel.";return}
+ let added=0,duplicates=0;
+ for(const title of lines){
+   if(subject.topics.some(t=>t.title.toLowerCase()===title.toLowerCase())){duplicates++;continue}
+   subject.topics.push({id:uid(),title,type:"Taak",done:false});
+   added++;
+ }
+ $("#smartschoolTasks").value="";
+ $("#smartschoolStatus").textContent=added+" taak/taken toegevoegd aan "+subject.name+"."+ (duplicates?" "+duplicates+" dubbele taak/taken overgeslagen.":"");
+ save();
+};
